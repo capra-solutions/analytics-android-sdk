@@ -1,0 +1,60 @@
+package site.dmbi.analytics
+
+/**
+ * SDK configuration
+ */
+data class DMBIConfiguration(
+    /** Site identifier (e.g., "hurriyet-android") */
+    val siteId: String,
+    /** Analytics endpoint URL */
+    val endpoint: String,
+    /** Heartbeat interval in milliseconds (default: 60 seconds) */
+    val heartbeatInterval: Long = 60_000L,
+    /** Batch size for event sending (default: 10) */
+    val batchSize: Int = 10,
+    /** Flush interval in milliseconds (default: 30 seconds) */
+    val flushInterval: Long = 30_000L,
+    /** Maximum retry count for failed events (default: 3) */
+    val maxRetryCount: Int = 3,
+    /** Session timeout in milliseconds - new session after background (default: 30 minutes) */
+    val sessionTimeout: Long = 30 * 60 * 1000L,
+    /** Enable debug logging (default: false) */
+    val debugLogging: Boolean = false,
+    /** Maximum offline events to store (default: 1000) */
+    val maxOfflineEvents: Int = 1000,
+    /** Days to keep offline events (default: 7) */
+    val offlineRetentionDays: Int = 7
+) {
+    class Builder(private val siteId: String, private val endpoint: String) {
+        private var heartbeatInterval: Long = 60_000L
+        private var batchSize: Int = 10
+        private var flushInterval: Long = 30_000L
+        private var maxRetryCount: Int = 3
+        private var sessionTimeout: Long = 30 * 60 * 1000L
+        private var debugLogging: Boolean = false
+        private var maxOfflineEvents: Int = 1000
+        private var offlineRetentionDays: Int = 7
+
+        fun heartbeatInterval(interval: Long) = apply { heartbeatInterval = interval }
+        fun batchSize(size: Int) = apply { batchSize = size }
+        fun flushInterval(interval: Long) = apply { flushInterval = interval }
+        fun maxRetryCount(count: Int) = apply { maxRetryCount = count }
+        fun sessionTimeout(timeout: Long) = apply { sessionTimeout = timeout }
+        fun debugLogging(enabled: Boolean) = apply { debugLogging = enabled }
+        fun maxOfflineEvents(count: Int) = apply { maxOfflineEvents = count }
+        fun offlineRetentionDays(days: Int) = apply { offlineRetentionDays = days }
+
+        fun build() = DMBIConfiguration(
+            siteId = siteId,
+            endpoint = endpoint,
+            heartbeatInterval = heartbeatInterval,
+            batchSize = batchSize,
+            flushInterval = flushInterval,
+            maxRetryCount = maxRetryCount,
+            sessionTimeout = sessionTimeout,
+            debugLogging = debugLogging,
+            maxOfflineEvents = maxOfflineEvents,
+            offlineRetentionDays = offlineRetentionDays
+        )
+    }
+}
