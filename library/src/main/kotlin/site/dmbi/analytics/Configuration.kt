@@ -8,8 +8,12 @@ data class DMBIConfiguration(
     val siteId: String,
     /** Analytics endpoint URL */
     val endpoint: String,
-    /** Heartbeat interval in milliseconds (default: 60 seconds) */
-    val heartbeatInterval: Long = 60_000L,
+    /** Heartbeat interval in milliseconds (default: 30 seconds) */
+    val heartbeatInterval: Long = 30_000L,
+    /** Maximum heartbeat interval when user is inactive (default: 120 seconds) */
+    val maxHeartbeatInterval: Long = 120_000L,
+    /** Time without interaction before increasing heartbeat interval (default: 30 seconds) */
+    val inactivityThreshold: Long = 30_000L,
     /** Batch size for event sending (default: 10) */
     val batchSize: Int = 10,
     /** Flush interval in milliseconds (default: 30 seconds) */
@@ -23,10 +27,14 @@ data class DMBIConfiguration(
     /** Maximum offline events to store (default: 1000) */
     val maxOfflineEvents: Int = 1000,
     /** Days to keep offline events (default: 7) */
-    val offlineRetentionDays: Int = 7
+    val offlineRetentionDays: Int = 7,
+    /** Enable automatic scroll tracking when possible (default: true) */
+    val autoScrollTracking: Boolean = true
 ) {
     class Builder(private val siteId: String, private val endpoint: String) {
-        private var heartbeatInterval: Long = 60_000L
+        private var heartbeatInterval: Long = 30_000L
+        private var maxHeartbeatInterval: Long = 120_000L
+        private var inactivityThreshold: Long = 30_000L
         private var batchSize: Int = 10
         private var flushInterval: Long = 30_000L
         private var maxRetryCount: Int = 3
@@ -34,8 +42,11 @@ data class DMBIConfiguration(
         private var debugLogging: Boolean = false
         private var maxOfflineEvents: Int = 1000
         private var offlineRetentionDays: Int = 7
+        private var autoScrollTracking: Boolean = true
 
         fun heartbeatInterval(interval: Long) = apply { heartbeatInterval = interval }
+        fun maxHeartbeatInterval(interval: Long) = apply { maxHeartbeatInterval = interval }
+        fun inactivityThreshold(threshold: Long) = apply { inactivityThreshold = threshold }
         fun batchSize(size: Int) = apply { batchSize = size }
         fun flushInterval(interval: Long) = apply { flushInterval = interval }
         fun maxRetryCount(count: Int) = apply { maxRetryCount = count }
@@ -43,18 +54,22 @@ data class DMBIConfiguration(
         fun debugLogging(enabled: Boolean) = apply { debugLogging = enabled }
         fun maxOfflineEvents(count: Int) = apply { maxOfflineEvents = count }
         fun offlineRetentionDays(days: Int) = apply { offlineRetentionDays = days }
+        fun autoScrollTracking(enabled: Boolean) = apply { autoScrollTracking = enabled }
 
         fun build() = DMBIConfiguration(
             siteId = siteId,
             endpoint = endpoint,
             heartbeatInterval = heartbeatInterval,
+            maxHeartbeatInterval = maxHeartbeatInterval,
+            inactivityThreshold = inactivityThreshold,
             batchSize = batchSize,
             flushInterval = flushInterval,
             maxRetryCount = maxRetryCount,
             sessionTimeout = sessionTimeout,
             debugLogging = debugLogging,
             maxOfflineEvents = maxOfflineEvents,
-            offlineRetentionDays = offlineRetentionDays
+            offlineRetentionDays = offlineRetentionDays,
+            autoScrollTracking = autoScrollTracking
         )
     }
 }

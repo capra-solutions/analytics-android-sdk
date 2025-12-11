@@ -48,7 +48,13 @@ data class AnalyticsEvent(
     val utmMedium: String? = null,
     val utmCampaign: String? = null,
     val utmContent: String? = null,
-    val utmTerm: String? = null
+    val utmTerm: String? = null,
+    // Engagement metrics
+    val activeTimeSeconds: Int? = null,
+    val pingCounter: Int? = null,
+    // User classification
+    val userType: String? = null,
+    val userSegments: List<String>? = null
 ) {
     fun toJson(): JSONObject {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
@@ -94,6 +100,12 @@ data class AnalyticsEvent(
             utmCampaign?.let { put("utm_campaign", it) }
             utmContent?.let { put("utm_content", it) }
             utmTerm?.let { put("utm_term", it) }
+            // Engagement
+            activeTimeSeconds?.let { put("active_time_seconds", it) }
+            pingCounter?.let { put("ping_counter", it) }
+            // User
+            userType?.let { put("user_type", it) }
+            userSegments?.let { put("user_segments", JSONArray(it)) }
         }
     }
 }
@@ -164,3 +176,46 @@ data class StoredEvent(
     val createdAt: Long = System.currentTimeMillis(),
     var retryCount: Int = 0
 )
+
+/**
+ * User type classification (similar to Marfeel)
+ */
+enum class UserType(val value: String) {
+    ANONYMOUS("anonymous"),
+    LOGGED_IN("logged"),
+    SUBSCRIBER("subscriber"),
+    PREMIUM("premium");
+
+    companion object {
+        @JvmStatic
+        fun fromString(value: String): UserType {
+            return values().find { it.value == value } ?: ANONYMOUS
+        }
+    }
+}
+
+/**
+ * Conversion event for tracking user actions/goals
+ */
+data class Conversion(
+    /** Unique conversion identifier */
+    val id: String,
+    /** Conversion type (e.g., "subscription", "registration", "purchase") */
+    val type: String,
+    /** Optional conversion value (e.g., revenue amount) */
+    val value: Double? = null,
+    /** Optional currency code (e.g., "TRY", "USD") */
+    val currency: String? = null,
+    /** Optional additional properties */
+    val properties: Map<String, Any>? = null
+) {
+    fun toJson(): JSONObject {
+        return JSONObject().apply {
+            put("id", id)
+            put("type", type)
+            value?.let { put("value", it) }
+            currency?.let { put("currency", it) }
+            properties?.let { put("properties", JSONObject(it)) }
+        }
+    }
+}

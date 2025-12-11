@@ -5,10 +5,13 @@ import android.net.Uri
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
+import org.json.JSONArray
 import org.json.JSONObject
 import site.dmbi.analytics.models.AnalyticsEvent
+import site.dmbi.analytics.models.Conversion
 import site.dmbi.analytics.models.ScreenMetadata
 import site.dmbi.analytics.models.UTMParameters
+import site.dmbi.analytics.models.UserType
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,6 +38,19 @@ internal class EventTracker(
     // Referrer (deep link source, push notification, etc.)
     private var currentReferrer: String? = null
 
+    // User classification
+    private var userType: UserType = UserType.ANONYMOUS
+    private val userSegments = mutableSetOf<String>()
+
+    // Pending conversions (sent with next heartbeat like Marfeel)
+    private val pendingConversions = mutableListOf<Conversion>()
+
+    // Scroll tracker reference
+    private var scrollTracker: ScrollTracker? = null
+
+    // Heartbeat manager reference (for active time and interaction recording)
+    private var heartbeatManager: HeartbeatManager? = null
+
     // Screen dimensions cache
     private val screenDimensions: Pair<Int, Int> by lazy {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -51,10 +67,74 @@ internal class EventTracker(
         val metadata: ScreenMetadata?
     )
 
+    // MARK: - Configuration
+
+    fun setHeartbeatManager(manager: HeartbeatManager) {
+        this.heartbeatManager = manager
+    }
+
+    fun setScrollTracker(tracker: ScrollTracker) {
+        this.scrollTracker = tracker
+    }
+
     // MARK: - User State
 
     fun setLoggedIn(loggedIn: Boolean) {
         isLoggedIn = loggedIn
+        if (loggedIn && userType == UserType.ANONYMOUS) {
+            userType = UserType.LOGGED_IN
+        }
+    }
+
+    fun setUserType(type: UserType) {
+        this.userType = type
+        if (type != UserType.ANONYMOUS) {
+            isLoggedIn = true
+        }
+    }
+
+    // MARK: - User Segments
+
+    fun addUserSegment(segment: String) {
+        userSegments.add(segment)
+    }
+
+    fun removeUserSegment(segment: String) {
+        userSegments.remove(segment)
+    }
+
+    fun setUserSegments(segments: Set<String>) {
+        userSegments.clear()
+        userSegments.addAll(segments)
+    }
+
+    fun clearUserSegments() {
+        userSegments.clear()
+    }
+
+    fun getUserSegments(): Set<String> = userSegments.toSet()
+
+    // MARK: - Conversions
+
+    fun trackConversion(conversion: Conversion) {
+        pendingConversions.add(conversion)
+
+        // Also send as immediate event
+        val customData = mutableMapOf<String, Any>(
+            "conversion_id" to conversion.id,
+            "conversion_type" to conversion.type
+        )
+        conversion.value?.let { customData["conversion_value"] = it }
+        conversion.currency?.let { customData["conversion_currency"] = it }
+        conversion.properties?.let { customData.putAll(it) }
+
+        val event = createEvent(
+            eventType = "conversion",
+            pageUrl = currentScreen?.url ?: "app://conversion",
+            pageTitle = currentScreen?.title,
+            customData = customData
+        )
+        enqueue(event)
     }
 
     // MARK: - UTM & Referrer
@@ -74,9 +154,18 @@ internal class EventTracker(
         this.currentReferrer = uri.scheme ?: "deeplink"
     }
 
+    // MARK: - User Interaction (for dynamic heartbeat)
+
+    fun recordInteraction() {
+        heartbeatManager?.recordInteraction()
+    }
+
     // MARK: - Screen Tracking
 
     fun trackScreen(name: String, url: String, title: String?, metadata: ScreenMetadata? = null) {
+        // Record interaction
+        recordInteraction()
+
         // Track exit from previous screen if any
         currentScreen?.let { prev ->
             trackScreenExit(prev.name, prev.url, prev.title, prev.metadata)
@@ -89,6 +178,9 @@ internal class EventTracker(
         // Record new screen
         currentScreen = ScreenInfo(name, url, title, metadata)
         screenEntryTime = System.currentTimeMillis()
+
+        // Reset scroll tracking for new screen
+        scrollTracker?.reset()
 
         // Format published date if present
         var publishedDateString: String? = null
@@ -117,15 +209,28 @@ internal class EventTracker(
     private fun trackScreenExit(name: String, url: String, title: String?, metadata: ScreenMetadata?) {
         val entryTime = screenEntryTime ?: return
         val duration = ((System.currentTimeMillis() - entryTime) / 1000).toInt()
+        val scrollDepth = scrollTracker?.maxScrollDepth
 
         val event = createEvent(
             eventType = "screen_exit",
             pageUrl = url,
             pageTitle = title,
             duration = duration,
+            scrollDepth = scrollDepth,
             customData = mapOf("screen_name" to name)
         )
         enqueue(event)
+    }
+
+    // MARK: - Scroll Tracking
+
+    fun reportScrollDepth(percent: Int) {
+        scrollTracker?.reportScrollDepth(percent)
+        recordInteraction()
+    }
+
+    fun getCurrentScrollDepth(): Int {
+        return scrollTracker?.maxScrollDepth ?: 0
     }
 
     // MARK: - App Lifecycle
@@ -157,6 +262,7 @@ internal class EventTracker(
     // MARK: - Video Tracking
 
     fun trackVideoImpression(videoId: String, title: String?, duration: Float?) {
+        recordInteraction()
         val event = createEvent(
             eventType = "video_impression",
             pageUrl = currentScreen?.url ?: "app://video",
@@ -169,6 +275,7 @@ internal class EventTracker(
     }
 
     fun trackVideoPlay(videoId: String, title: String?, duration: Float?, position: Float?) {
+        recordInteraction()
         val event = createEvent(
             eventType = "video_play",
             pageUrl = currentScreen?.url ?: "app://video",
@@ -182,6 +289,7 @@ internal class EventTracker(
     }
 
     fun trackVideoProgress(videoId: String, duration: Float?, position: Float?, percent: Int) {
+        recordInteraction()
         val event = createEvent(
             eventType = "video_quartile",
             pageUrl = currentScreen?.url ?: "app://video",
@@ -195,6 +303,7 @@ internal class EventTracker(
     }
 
     fun trackVideoPause(videoId: String, position: Float?, percent: Int?) {
+        recordInteraction()
         val event = createEvent(
             eventType = "video_pause",
             pageUrl = currentScreen?.url ?: "app://video",
@@ -207,6 +316,7 @@ internal class EventTracker(
     }
 
     fun trackVideoComplete(videoId: String, duration: Float?) {
+        recordInteraction()
         val event = createEvent(
             eventType = "video_complete",
             pageUrl = currentScreen?.url ?: "app://video",
@@ -253,11 +363,25 @@ internal class EventTracker(
 
     // MARK: - Heartbeat
 
-    fun trackHeartbeat() {
+    fun trackHeartbeat(activeTimeSeconds: Int, pingCounter: Int) {
+        // Include pending conversions in heartbeat (like Marfeel)
+        val customData = mutableMapOf<String, Any>()
+
+        if (pendingConversions.isNotEmpty()) {
+            val conversionsJson = JSONArray()
+            pendingConversions.forEach { conversionsJson.put(it.toJson()) }
+            customData["pending_conversions"] = conversionsJson.toString()
+            pendingConversions.clear()
+        }
+
         val event = createEvent(
             eventType = "heartbeat",
             pageUrl = currentScreen?.url ?: "app://heartbeat",
-            pageTitle = currentScreen?.title
+            pageTitle = currentScreen?.title,
+            scrollDepth = scrollTracker?.maxScrollDepth,
+            customData = customData.takeIf { it.isNotEmpty() },
+            activeTimeSeconds = activeTimeSeconds,
+            pingCounter = pingCounter
         )
         enqueue(event)
     }
@@ -265,6 +389,7 @@ internal class EventTracker(
     // MARK: - Custom Events
 
     fun trackCustomEvent(name: String, properties: Map<String, Any>?) {
+        recordInteraction()
         val event = createEvent(
             eventType = name,
             pageUrl = currentScreen?.url ?: "app://custom",
@@ -304,7 +429,10 @@ internal class EventTracker(
         articleSection: String? = null,
         articleKeywords: List<String>? = null,
         publishedDate: String? = null,
-        contentType: String? = null
+        contentType: String? = null,
+        // Engagement
+        activeTimeSeconds: Int? = null,
+        pingCounter: Int? = null
     ): AnalyticsEvent {
         sessionManager.updateActivity()
 
@@ -350,7 +478,13 @@ internal class EventTracker(
             utmMedium = currentUTM?.medium,
             utmCampaign = currentUTM?.campaign,
             utmContent = currentUTM?.content,
-            utmTerm = currentUTM?.term
+            utmTerm = currentUTM?.term,
+            // Engagement
+            activeTimeSeconds = activeTimeSeconds,
+            pingCounter = pingCounter,
+            // User
+            userType = userType.value,
+            userSegments = userSegments.toList().takeIf { it.isNotEmpty() }
         )
     }
 

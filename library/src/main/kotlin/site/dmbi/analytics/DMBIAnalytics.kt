@@ -3,12 +3,26 @@ package site.dmbi.analytics
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.RecyclerView
+import android.widget.ScrollView
+import site.dmbi.analytics.models.Conversion
 import site.dmbi.analytics.models.ScreenMetadata
 import site.dmbi.analytics.models.UTMParameters
+import site.dmbi.analytics.models.UserType
 
 /**
  * DMBI Analytics SDK for Android
  * Tracks user activity, screen views, video engagement, and push notifications
+ *
+ * Features:
+ * - Heartbeat tracking with dynamic intervals
+ * - Active time tracking (excluding background)
+ * - Scroll depth tracking
+ * - User segments and types
+ * - Conversion tracking
+ * - Offline event storage
+ * - Event batching
  */
 object DMBIAnalytics {
     private var config: DMBIConfiguration? = null
@@ -18,6 +32,7 @@ object DMBIAnalytics {
     private var eventTracker: EventTracker? = null
     private var heartbeatManager: HeartbeatManager? = null
     private var lifecycleTracker: LifecycleTracker? = null
+    private var scrollTracker: ScrollTracker? = null
 
     private var isConfigured = false
 
@@ -74,16 +89,28 @@ object DMBIAnalytics {
             it.setOfflineStore(offlineStore!!)
         }
 
+        // Initialize scroll tracker
+        scrollTracker = ScrollTracker()
+
         eventTracker = EventTracker(
             context = appContext,
             config = config,
             sessionManager = sessionManager!!,
             networkQueue = networkQueue!!
-        )
+        ).also {
+            it.setScrollTracker(scrollTracker!!)
+        }
 
-        heartbeatManager = HeartbeatManager(config.heartbeatInterval).also {
+        heartbeatManager = HeartbeatManager(
+            baseInterval = config.heartbeatInterval,
+            maxInterval = config.maxHeartbeatInterval,
+            inactivityThreshold = config.inactivityThreshold
+        ).also {
             it.setTracker(eventTracker!!)
         }
+
+        // Connect heartbeat manager to event tracker for interaction recording
+        eventTracker?.setHeartbeatManager(heartbeatManager!!)
 
         lifecycleTracker = LifecycleTracker(config.sessionTimeout).also {
             it.configure(
@@ -99,7 +126,7 @@ object DMBIAnalytics {
         isConfigured = true
 
         if (config.debugLogging) {
-            Log.d(TAG, "Configured with siteId: ${config.siteId}")
+            Log.d(TAG, "Configured with siteId: ${config.siteId}, heartbeat: ${config.heartbeatInterval}ms")
         }
     }
 
@@ -127,6 +154,66 @@ object DMBIAnalytics {
     @JvmStatic
     fun trackScreen(name: String, url: String, title: String?, metadata: ScreenMetadata) {
         eventTracker?.trackScreen(name, url, title, metadata)
+    }
+
+    // MARK: - Scroll Tracking
+
+    /**
+     * Get the scroll tracker for attaching to scrollable views
+     * @return ScrollTracker instance
+     */
+    @JvmStatic
+    fun getScrollTracker(): ScrollTracker? = scrollTracker
+
+    /**
+     * Attach scroll tracking to a RecyclerView
+     * @param recyclerView The RecyclerView to track
+     */
+    @JvmStatic
+    fun attachScrollTracking(recyclerView: RecyclerView) {
+        scrollTracker?.attachTo(recyclerView)
+    }
+
+    /**
+     * Attach scroll tracking to a NestedScrollView
+     * @param nestedScrollView The NestedScrollView to track
+     */
+    @JvmStatic
+    fun attachScrollTracking(nestedScrollView: NestedScrollView) {
+        scrollTracker?.attachTo(nestedScrollView)
+    }
+
+    /**
+     * Attach scroll tracking to a ScrollView
+     * @param scrollView The ScrollView to track
+     */
+    @JvmStatic
+    fun attachScrollTracking(scrollView: ScrollView) {
+        scrollTracker?.attachTo(scrollView)
+    }
+
+    /**
+     * Report scroll depth manually (for custom scroll implementations)
+     * @param percent Scroll percentage (0-100)
+     */
+    @JvmStatic
+    fun reportScrollDepth(percent: Int) {
+        eventTracker?.reportScrollDepth(percent)
+    }
+
+    /**
+     * Get current maximum scroll depth
+     * @return Scroll depth percentage (0-100)
+     */
+    @JvmStatic
+    fun getCurrentScrollDepth(): Int = eventTracker?.getCurrentScrollDepth() ?: 0
+
+    /**
+     * Detach scroll tracking from current view
+     */
+    @JvmStatic
+    fun detachScrollTracking() {
+        scrollTracker?.detach()
     }
 
     // MARK: - Deep Link & UTM Tracking
@@ -250,6 +337,88 @@ object DMBIAnalytics {
         eventTracker?.setLoggedIn(loggedIn)
     }
 
+    /**
+     * Set user type (anonymous, logged, subscriber, premium)
+     * @param userType The user's subscription/login status
+     */
+    @JvmStatic
+    fun setUserType(userType: UserType) {
+        eventTracker?.setUserType(userType)
+    }
+
+    // MARK: - User Segments
+
+    /**
+     * Add a user segment for cohort analysis
+     * @param segment Segment identifier (e.g., "sports_fan", "premium_reader")
+     */
+    @JvmStatic
+    fun addUserSegment(segment: String) {
+        eventTracker?.addUserSegment(segment)
+    }
+
+    /**
+     * Remove a user segment
+     * @param segment Segment identifier to remove
+     */
+    @JvmStatic
+    fun removeUserSegment(segment: String) {
+        eventTracker?.removeUserSegment(segment)
+    }
+
+    /**
+     * Set all user segments (replaces existing)
+     * @param segments Set of segment identifiers
+     */
+    @JvmStatic
+    fun setUserSegments(segments: Set<String>) {
+        eventTracker?.setUserSegments(segments)
+    }
+
+    /**
+     * Clear all user segments
+     */
+    @JvmStatic
+    fun clearUserSegments() {
+        eventTracker?.clearUserSegments()
+    }
+
+    /**
+     * Get current user segments
+     * @return Set of segment identifiers
+     */
+    @JvmStatic
+    fun getUserSegments(): Set<String> = eventTracker?.getUserSegments() ?: emptySet()
+
+    // MARK: - Conversion Tracking
+
+    /**
+     * Track a conversion event
+     * @param conversion Conversion details
+     */
+    @JvmStatic
+    fun trackConversion(conversion: Conversion) {
+        eventTracker?.trackConversion(conversion)
+    }
+
+    /**
+     * Track a simple conversion
+     * @param id Unique conversion identifier
+     * @param type Conversion type (e.g., "subscription", "registration", "purchase")
+     * @param value Optional conversion value (e.g., revenue amount)
+     * @param currency Optional currency code (e.g., "TRY", "USD")
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun trackConversion(
+        id: String,
+        type: String,
+        value: Double? = null,
+        currency: String? = null
+    ) {
+        eventTracker?.trackConversion(Conversion(id, type, value, currency))
+    }
+
     // MARK: - Custom Events
 
     /**
@@ -262,6 +431,33 @@ object DMBIAnalytics {
     fun trackEvent(name: String, properties: Map<String, Any>? = null) {
         eventTracker?.trackCustomEvent(name, properties)
     }
+
+    // MARK: - User Interaction
+
+    /**
+     * Record user interaction (resets inactivity timer for dynamic heartbeat)
+     * Call this on touch events, scrolls, or other user actions
+     */
+    @JvmStatic
+    fun recordInteraction() {
+        eventTracker?.recordInteraction()
+    }
+
+    // MARK: - Engagement Metrics
+
+    /**
+     * Get current active time in seconds (excluding background time)
+     * @return Active time in seconds
+     */
+    @JvmStatic
+    fun getActiveTimeSeconds(): Int = heartbeatManager?.activeTimeSeconds ?: 0
+
+    /**
+     * Get current ping counter
+     * @return Number of heartbeats sent in current session
+     */
+    @JvmStatic
+    fun getPingCounter(): Int = heartbeatManager?.currentPingCounter ?: 0
 
     // MARK: - Control
 
