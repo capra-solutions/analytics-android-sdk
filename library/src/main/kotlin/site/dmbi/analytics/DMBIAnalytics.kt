@@ -10,6 +10,7 @@ import site.dmbi.analytics.models.Conversion
 import site.dmbi.analytics.models.ScreenMetadata
 import site.dmbi.analytics.models.UTMParameters
 import site.dmbi.analytics.models.UserType
+import site.dmbi.analytics.util.SignatureHelper
 
 /**
  * DMBI Analytics SDK for Android
@@ -68,6 +69,18 @@ object DMBIAnalytics {
 
         this.config = config
         val appContext = context.applicationContext
+
+        // Initialize signature helper for request authentication
+        if (config.secretKey.isNotEmpty()) {
+            SignatureHelper.initialize(config.secretKey)
+            if (config.debugLogging) {
+                Log.d(TAG, "Request signing enabled")
+            }
+        } else {
+            if (config.debugLogging) {
+                Log.w(TAG, "No secret key provided - requests will not be signed")
+            }
+        }
 
         // Initialize components
         sessionManager = SessionManager(appContext, config.sessionTimeout)
