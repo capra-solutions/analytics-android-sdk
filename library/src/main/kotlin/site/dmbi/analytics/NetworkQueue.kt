@@ -4,7 +4,6 @@ import android.util.Log
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import site.dmbi.analytics.models.AnalyticsEvent
-import site.dmbi.analytics.util.SignatureHelper
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
@@ -98,28 +97,19 @@ internal class NetworkQueue(
             events.forEach { jsonArray.put(it.toJson()) }
             val payload = jsonArray.toString()
 
-            // Generate signature for request authentication
-            val timestamp = System.currentTimeMillis()
-            val signature = SignatureHelper.sign(timestamp, payload)
-
             val url = URL(endpoint)
             val connection = url.openConnection() as HttpURLConnection
 
             connection.apply {
                 requestMethod = "POST"
                 setRequestProperty("Content-Type", "application/json")
-                // Add security headers
-                if (signature.isNotEmpty()) {
-                    setRequestProperty("X-Timestamp", timestamp.toString())
-                    setRequestProperty("X-Signature", signature)
-                }
                 doOutput = true
                 connectTimeout = 30_000
                 readTimeout = 30_000
             }
 
             if (debugLogging) {
-                Log.d(TAG, "Sending ${events.size} events to $endpoint (signed: ${signature.isNotEmpty()})")
+                Log.d(TAG, "Sending ${events.size} events to $endpoint")
             }
 
             OutputStreamWriter(connection.outputStream).use { writer ->

@@ -8,8 +8,6 @@ data class DMBIConfiguration(
     val siteId: String,
     /** Analytics endpoint URL */
     val endpoint: String,
-    /** Secret key for request signing (required for security) */
-    val secretKey: String = "",
     /** Heartbeat interval in milliseconds (default: 30 seconds) */
     val heartbeatInterval: Long = 30_000L,
     /** Maximum heartbeat interval when user is inactive (default: 120 seconds) */
@@ -34,7 +32,6 @@ data class DMBIConfiguration(
     val autoScrollTracking: Boolean = true
 ) {
     class Builder(private val siteId: String, private val endpoint: String) {
-        private var secretKey: String = ""
         private var heartbeatInterval: Long = 30_000L
         private var maxHeartbeatInterval: Long = 120_000L
         private var inactivityThreshold: Long = 30_000L
@@ -47,7 +44,6 @@ data class DMBIConfiguration(
         private var offlineRetentionDays: Int = 7
         private var autoScrollTracking: Boolean = true
 
-        fun secretKey(key: String) = apply { secretKey = key }
         fun heartbeatInterval(interval: Long) = apply { heartbeatInterval = interval }
         fun maxHeartbeatInterval(interval: Long) = apply { maxHeartbeatInterval = interval }
         fun inactivityThreshold(threshold: Long) = apply { inactivityThreshold = threshold }
@@ -63,7 +59,6 @@ data class DMBIConfiguration(
         fun build() = DMBIConfiguration(
             siteId = siteId,
             endpoint = endpoint,
-            secretKey = secretKey,
             heartbeatInterval = heartbeatInterval,
             maxHeartbeatInterval = maxHeartbeatInterval,
             inactivityThreshold = inactivityThreshold,
