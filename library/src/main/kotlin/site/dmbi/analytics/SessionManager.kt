@@ -94,10 +94,9 @@ internal class SessionManager(
     /** Get user agent string */
     val userAgent: String
         get() {
-            val sdkVersion = "1.0.0"
             val osVersion = Build.VERSION.RELEASE
             val deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}"
-            return "DMBIAnalytics/$sdkVersion Android/$osVersion ($deviceModel)"
+            return "DMBIAnalytics/${BuildConfig.SDK_VERSION} Android/$osVersion ($deviceModel)"
         }
 
     companion object {

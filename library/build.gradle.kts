@@ -4,6 +4,8 @@ plugins {
     id("maven-publish")
 }
 
+val sdkVersion = "1.0.1"
+
 android {
     namespace = "site.dmbi.analytics"
     compileSdk = 34
@@ -12,6 +14,12 @@ android {
         minSdk = 21
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField("String", "SDK_VERSION", "\"$sdkVersion\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -55,7 +63,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "site.dmbi.analytics"
             artifactId = "analytics"
-            version = "1.0.1"
+            version = sdkVersion
 
             afterEvaluate {
                 from(components["release"])
