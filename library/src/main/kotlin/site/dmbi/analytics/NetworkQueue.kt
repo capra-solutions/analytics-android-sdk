@@ -17,7 +17,8 @@ internal class NetworkQueue(
     private val batchSize: Int,
     private val flushInterval: Long,
     private val maxRetryCount: Int,
-    private val debugLogging: Boolean
+    private val debugLogging: Boolean,
+    private val userAgent: String
 ) {
     private val eventQueue = CopyOnWriteArrayList<AnalyticsEvent>()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -103,6 +104,7 @@ internal class NetworkQueue(
             connection.apply {
                 requestMethod = "POST"
                 setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("User-Agent", userAgent)
                 doOutput = true
                 connectTimeout = 30_000
                 readTimeout = 30_000

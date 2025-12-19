@@ -84,7 +84,8 @@ object DMBIAnalytics {
             batchSize = config.batchSize,
             flushInterval = config.flushInterval,
             maxRetryCount = config.maxRetryCount,
-            debugLogging = config.debugLogging
+            debugLogging = config.debugLogging,
+            userAgent = sessionManager!!.userAgent
         ).also {
             it.setOfflineStore(offlineStore!!)
         }
