@@ -30,7 +30,7 @@ Add the dependency:
 
 ```gradle
 dependencies {
-    implementation 'com.github.dmbi-analytics:analytics-android-sdk:1.0.1'
+    implementation 'com.github.dmbi-analytics:analytics-android-sdk:1.0.2'
 }
 ```
 
