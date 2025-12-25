@@ -4,7 +4,7 @@ plugins {
     id("maven-publish")
 }
 
-val sdkVersion = "1.0.3"
+val sdkVersion = "1.0.4"
 
 android {
     namespace = "site.dmbi.analytics"
@@ -53,6 +53,12 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
+
+    // Optional video player integrations (users should add the ones they use)
+    compileOnly("androidx.media3:media3-exoplayer:1.2.0")
+    compileOnly("androidx.media3:media3-common:1.2.0")
+    compileOnly("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
+    compileOnly("com.dailymotion.player.android:sdk:1.3.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

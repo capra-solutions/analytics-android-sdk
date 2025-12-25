@@ -30,7 +30,7 @@ Add the dependency:
 
 ```gradle
 dependencies {
-    implementation 'com.github.dmbi-analytics:analytics-android-sdk:1.0.3'
+    implementation 'com.github.dmbi-analytics:analytics-android-sdk:1.0.4'
 }
 ```
 
@@ -131,6 +131,8 @@ DMBIAnalytics.trackConversion(
 
 ### 6. Video Tracking
 
+#### Manual Tracking
+
 ```kotlin
 // Video started playing
 DMBIAnalytics.trackVideoPlay(
@@ -152,6 +154,55 @@ DMBIAnalytics.trackVideoProgress(
 DMBIAnalytics.trackVideoComplete(
     videoId = "vid123",
     duration = 180f
+)
+```
+
+#### Auto-Tracking with Player Wrappers
+
+SDK includes wrappers for popular video players that automatically track play, pause, progress (25%, 50%, 75%, 100%), and complete events.
+
+**ExoPlayer:**
+```kotlin
+// Add dependency: implementation("androidx.media3:media3-exoplayer:1.2.0")
+
+import site.dmbi.analytics.players.ExoPlayerWrapper
+
+val exoPlayer = ExoPlayer.Builder(context).build()
+val wrapper = ExoPlayerWrapper(exoPlayer)
+wrapper.attach(
+    videoId = "vid123",
+    title = "Video Title"
+)
+
+// When done:
+wrapper.detach()
+```
+
+**YouTube Player:**
+```kotlin
+// Add dependency: implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
+
+import site.dmbi.analytics.players.YouTubePlayerWrapper
+
+youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+    override fun onReady(youTubePlayer: YouTubePlayer) {
+        val wrapper = YouTubePlayerWrapper(youTubePlayer)
+        wrapper.attach(videoId = "dQw4w9WgXcQ", title = "Video Title")
+        youTubePlayer.loadVideo("dQw4w9WgXcQ", 0f)
+    }
+})
+```
+
+**Dailymotion Player:**
+```kotlin
+// Add dependency: implementation("com.dailymotion.player.android:sdk:1.3.1")
+
+import site.dmbi.analytics.players.DailymotionPlayerWrapper
+
+val wrapper = DailymotionPlayerWrapper(playerView)
+wrapper.attach(
+    videoId = "x8abc123",
+    title = "Video Title"
 )
 ```
 
