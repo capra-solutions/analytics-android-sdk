@@ -1,0 +1,9 @@
+jdk:
+  - openjdk17
+
+before_install:
+  - echo "Adding Dailymotion Maven repository"
+
+install:
+  - FILE="settings.gradle.kts"
+  - echo "Using existing settings.gradle.kts with Dailymotion repository"
