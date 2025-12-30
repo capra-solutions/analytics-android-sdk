@@ -30,7 +30,7 @@ Add the dependency:
 
 ```gradle
 dependencies {
-    implementation 'com.github.capra-solutions:analytics-android-sdk:2.0.0'
+    implementation 'com.github.capra-solutions:analytics-android-sdk:2.0.1'
 }
 ```
 
