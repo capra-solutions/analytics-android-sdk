@@ -30,7 +30,7 @@ Add the dependency:
 
 ```gradle
 dependencies {
-    implementation 'com.github.capra-solutions:analytics-android-sdk:2.0.1'
+    implementation 'com.github.capra-solutions:analytics-android-sdk:2.5.3'
 }
 ```
 
@@ -224,6 +224,8 @@ Dailymotion.createPlayer(
     player.loadContent(videoId = "x8abc123")
 }
 ```
+
+> **Note:** For auto-play scenarios where the player automatically loads a new video, call `wrapper.attach()` again with the new video metadata to ensure correct tracking.
 
 ### 7. Push Notifications
 
