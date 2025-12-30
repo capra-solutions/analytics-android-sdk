@@ -1,6 +1,7 @@
 package solutions.capra.analytics.players
 
 import com.dailymotion.player.android.sdk.PlayerView
+import com.dailymotion.player.android.sdk.PlayerEvent
 import com.dailymotion.player.android.sdk.listeners.VideoListener
 import com.dailymotion.player.android.sdk.listeners.PlayerListener
 import solutions.capra.analytics.CapraAnalytics
@@ -28,6 +29,7 @@ import solutions.capra.analytics.CapraAnalytics
  */
 class DailymotionPlayerWrapper {
 
+    private var playerView: PlayerView? = null
     private var videoId: String? = null
     private var videoTitle: String? = null
     private var videoDuration: Float? = null
@@ -39,6 +41,9 @@ class DailymotionPlayerWrapper {
      */
     val videoListener = object : VideoListener {
         override fun onVideoStart(playerView: PlayerView) {
+            // Check for video change (including auto-play)
+            checkForVideoChange(playerView)
+
             if (!hasTrackedImpression) {
                 trackImpression()
                 hasTrackedImpression = true
@@ -95,6 +100,34 @@ class DailymotionPlayerWrapper {
     fun detach() {
         videoId = null
         videoTitle = null
+    }
+
+    /**
+     * Check if video has changed (e.g., auto-play next video).
+     * Uses getState() to get current video ID from player.
+     */
+    private fun checkForVideoChange(playerView: PlayerView) {
+        this.playerView = playerView
+        playerView.getState(object : PlayerView.PlayerStateCallback {
+            override fun onPlayerStateReceived(playerView: PlayerView, playerState: PlayerEvent.PlayerState) {
+                val newVideoId = playerState.videoId
+                if (!newVideoId.isNullOrEmpty() && newVideoId != videoId) {
+                    handleVideoChange(newVideoId, playerState.videoTitle)
+                }
+            }
+        })
+    }
+
+    /**
+     * Handle video change (e.g., auto-play next video).
+     * Resets tracking state and updates video ID.
+     */
+    private fun handleVideoChange(newVideoId: String, newTitle: String?) {
+        videoId = newVideoId
+        videoTitle = newTitle
+        videoDuration = null
+        hasTrackedImpression = false
+        isPlaying = false
     }
 
     private fun trackImpression() {
