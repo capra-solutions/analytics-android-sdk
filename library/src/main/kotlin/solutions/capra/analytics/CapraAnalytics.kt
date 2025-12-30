@@ -12,7 +12,7 @@ import solutions.capra.analytics.models.UTMParameters
 import solutions.capra.analytics.models.UserType
 
 /**
- * DMBI Analytics SDK for Android
+ * Capra Analytics SDK for Android
  * Tracks user activity, screen views, video engagement, and push notifications
  *
  * Features:
@@ -44,7 +44,7 @@ object CapraAnalytics {
      * Configure the SDK with site ID and endpoint
      * @param context Application context
      * @param siteId Your site identifier (e.g., "hurriyet-android")
-     * @param endpoint Analytics endpoint URL (e.g., "https://realtime.dmbi.site/e")
+     * @param endpoint Analytics endpoint URL (e.g., "https://t.capra.solutions/e")
      */
     @JvmStatic
     fun configure(context: Context, siteId: String, endpoint: String) {
