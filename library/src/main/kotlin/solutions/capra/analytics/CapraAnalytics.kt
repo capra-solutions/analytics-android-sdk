@@ -1,4 +1,4 @@
-package site.dmbi.analytics
+package solutions.capra.analytics
 
 import android.content.Context
 import android.net.Uri
@@ -6,10 +6,10 @@ import android.util.Log
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.ScrollView
-import site.dmbi.analytics.models.Conversion
-import site.dmbi.analytics.models.ScreenMetadata
-import site.dmbi.analytics.models.UTMParameters
-import site.dmbi.analytics.models.UserType
+import solutions.capra.analytics.models.Conversion
+import solutions.capra.analytics.models.ScreenMetadata
+import solutions.capra.analytics.models.UTMParameters
+import solutions.capra.analytics.models.UserType
 
 /**
  * DMBI Analytics SDK for Android
@@ -24,8 +24,8 @@ import site.dmbi.analytics.models.UserType
  * - Offline event storage
  * - Event batching
  */
-object DMBIAnalytics {
-    private var config: DMBIConfiguration? = null
+object CapraAnalytics {
+    private var config: CapraConfiguration? = null
     private var sessionManager: SessionManager? = null
     private var networkQueue: NetworkQueue? = null
     private var offlineStore: OfflineStore? = null
@@ -36,7 +36,7 @@ object DMBIAnalytics {
 
     private var isConfigured = false
 
-    private const val TAG = "DMBIAnalytics"
+    private const val TAG = "CapraAnalytics"
 
     // MARK: - Configuration
 
@@ -48,17 +48,17 @@ object DMBIAnalytics {
      */
     @JvmStatic
     fun configure(context: Context, siteId: String, endpoint: String) {
-        val config = DMBIConfiguration(siteId = siteId, endpoint = endpoint)
+        val config = CapraConfiguration(siteId = siteId, endpoint = endpoint)
         configure(context, config)
     }
 
     /**
      * Configure the SDK with a custom configuration
      * @param context Application context
-     * @param config DMBIConfiguration instance
+     * @param config CapraConfiguration instance
      */
     @JvmStatic
-    fun configure(context: Context, config: DMBIConfiguration) {
+    fun configure(context: Context, config: CapraConfiguration) {
         if (isConfigured) {
             if (config.debugLogging) {
                 Log.w(TAG, "Already configured. Ignoring duplicate configuration.")

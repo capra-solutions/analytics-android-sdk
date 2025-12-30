@@ -1,6 +1,6 @@
-# DMBI Analytics Android SDK
+# Capra Analytics Android SDK
 
-Native Android SDK for DMBI Analytics platform. Track screen views, video engagement, push notifications, scroll depth, conversions, and custom events.
+Native Android SDK for Capra Analytics platform. Track screen views, video engagement, push notifications, scroll depth, conversions, and custom events.
 
 ## Features
 
@@ -30,25 +30,36 @@ Add the dependency:
 
 ```gradle
 dependencies {
-    implementation 'com.github.dmbi-analytics:analytics-android-sdk:1.0.9'
+    implementation 'com.github.capra-solutions:analytics-android-sdk:2.0.0'
 }
 ```
+
+## Migration from DMBIAnalytics 1.x
+
+If upgrading from version 1.x:
+
+1. Update import: `import site.dmbi.analytics.*` -> `import solutions.capra.analytics.*`
+2. Rename class: `DMBIAnalytics` -> `CapraAnalytics`
+3. Rename config: `DMBIConfiguration` -> `CapraConfiguration`
+4. Update endpoint: `https://realtime.dmbi.site/e` -> `https://t.capra.solutions/e`
+
+Note: Storage keys have changed, so user sessions will be reset after upgrade.
 
 ## Quick Start
 
 ### 1. Initialize in Application Class
 
 ```kotlin
-import site.dmbi.analytics.DMBIAnalytics
+import solutions.capra.analytics.CapraAnalytics
 
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        DMBIAnalytics.configure(
+        CapraAnalytics.configure(
             context = this,
             siteId = "your-site-android",
-            endpoint = "https://realtime.dmbi.site/e"
+            endpoint = "https://t.capra.solutions/e"
         )
     }
 }
@@ -59,7 +70,7 @@ class MyApplication : Application() {
 ```kotlin
 override fun onResume() {
     super.onResume()
-    DMBIAnalytics.trackScreen(
+    CapraAnalytics.trackScreen(
         name = "ArticleDetail",
         url = "app://article/$articleId",
         title = article.title
@@ -71,43 +82,43 @@ override fun onResume() {
 
 ```kotlin
 // Attach to RecyclerView
-DMBIAnalytics.attachScrollTracking(recyclerView)
+CapraAnalytics.attachScrollTracking(recyclerView)
 
 // Or NestedScrollView
-DMBIAnalytics.attachScrollTracking(nestedScrollView)
+CapraAnalytics.attachScrollTracking(nestedScrollView)
 
 // Or report manually (for custom scroll implementations)
-DMBIAnalytics.reportScrollDepth(75) // 75%
+CapraAnalytics.reportScrollDepth(75) // 75%
 
 // Get current scroll depth
-val depth = DMBIAnalytics.getCurrentScrollDepth()
+val depth = CapraAnalytics.getCurrentScrollDepth()
 
 // Detach when leaving screen
-DMBIAnalytics.detachScrollTracking()
+CapraAnalytics.detachScrollTracking()
 ```
 
 ### 4. User Types & Segments
 
 ```kotlin
 // Set user type
-DMBIAnalytics.setUserType(UserType.SUBSCRIBER) // anonymous, logged, subscriber, premium
+CapraAnalytics.setUserType(UserType.SUBSCRIBER) // anonymous, logged, subscriber, premium
 
 // Add user segments for cohort analysis
-DMBIAnalytics.addUserSegment("sports_fan")
-DMBIAnalytics.addUserSegment("premium_reader")
+CapraAnalytics.addUserSegment("sports_fan")
+CapraAnalytics.addUserSegment("premium_reader")
 
 // Remove segment
-DMBIAnalytics.removeUserSegment("sports_fan")
+CapraAnalytics.removeUserSegment("sports_fan")
 
 // Get all segments
-val segments = DMBIAnalytics.getUserSegments()
+val segments = CapraAnalytics.getUserSegments()
 ```
 
 ### 5. Conversion Tracking
 
 ```kotlin
 // Simple conversion
-DMBIAnalytics.trackConversion(
+CapraAnalytics.trackConversion(
     id = "sub_123",
     type = "subscription",
     value = 99.99,
@@ -115,7 +126,7 @@ DMBIAnalytics.trackConversion(
 )
 
 // Detailed conversion with properties
-DMBIAnalytics.trackConversion(
+CapraAnalytics.trackConversion(
     Conversion(
         id = "purchase_456",
         type = "purchase",
@@ -135,7 +146,7 @@ DMBIAnalytics.trackConversion(
 
 ```kotlin
 // Video started playing
-DMBIAnalytics.trackVideoPlay(
+CapraAnalytics.trackVideoPlay(
     videoId = "vid123",
     title = "Video Title",
     duration = 180f,
@@ -143,7 +154,7 @@ DMBIAnalytics.trackVideoPlay(
 )
 
 // Video progress (quartiles)
-DMBIAnalytics.trackVideoProgress(
+CapraAnalytics.trackVideoProgress(
     videoId = "vid123",
     duration = 180f,
     position = 45f,
@@ -151,7 +162,7 @@ DMBIAnalytics.trackVideoProgress(
 )
 
 // Video completed
-DMBIAnalytics.trackVideoComplete(
+CapraAnalytics.trackVideoComplete(
     videoId = "vid123",
     duration = 180f
 )
@@ -165,7 +176,7 @@ SDK includes wrappers for popular video players that automatically track play, p
 ```kotlin
 // Add dependency: implementation("androidx.media3:media3-exoplayer:1.2.0")
 
-import site.dmbi.analytics.players.ExoPlayerWrapper
+import solutions.capra.analytics.players.ExoPlayerWrapper
 
 val exoPlayer = ExoPlayer.Builder(context).build()
 val wrapper = ExoPlayerWrapper(exoPlayer)
@@ -182,7 +193,7 @@ wrapper.detach()
 ```kotlin
 // Add dependency: implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
 
-import site.dmbi.analytics.players.YouTubePlayerWrapper
+import solutions.capra.analytics.players.YouTubePlayerWrapper
 
 youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
     override fun onReady(youTubePlayer: YouTubePlayer) {
@@ -198,7 +209,7 @@ youTubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListene
 // Add dependency: implementation("com.dailymotion.player.android:sdk:1.2.7")
 // Add repository: maven { url = uri("https://mvn.dailymotion.com/repository/releases/") }
 
-import site.dmbi.analytics.players.DailymotionPlayerWrapper
+import solutions.capra.analytics.players.DailymotionPlayerWrapper
 
 val wrapper = DailymotionPlayerWrapper()
 
@@ -219,7 +230,7 @@ Dailymotion.createPlayer(
 ```kotlin
 // In FirebaseMessagingService
 override fun onMessageReceived(remoteMessage: RemoteMessage) {
-    DMBIAnalytics.trackPushReceived(
+    CapraAnalytics.trackPushReceived(
         notificationId = remoteMessage.data["notification_id"],
         title = remoteMessage.notification?.title,
         campaign = remoteMessage.data["campaign"]
@@ -227,7 +238,7 @@ override fun onMessageReceived(remoteMessage: RemoteMessage) {
 }
 
 // When notification is opened
-DMBIAnalytics.trackPushOpened(
+CapraAnalytics.trackPushOpened(
     notificationId = intent.getStringExtra("notification_id"),
     title = intent.getStringExtra("title"),
     campaign = intent.getStringExtra("campaign")
@@ -238,19 +249,19 @@ DMBIAnalytics.trackPushOpened(
 
 ```kotlin
 // Get active time (excludes background)
-val activeSeconds = DMBIAnalytics.getActiveTimeSeconds()
+val activeSeconds = CapraAnalytics.getActiveTimeSeconds()
 
 // Get heartbeat count
-val pingCount = DMBIAnalytics.getPingCounter()
+val pingCount = CapraAnalytics.getPingCounter()
 
 // Record user interaction (resets inactivity timer)
-DMBIAnalytics.recordInteraction()
+CapraAnalytics.recordInteraction()
 ```
 
 ### 9. Custom Events
 
 ```kotlin
-DMBIAnalytics.trackEvent(
+CapraAnalytics.trackEvent(
     name = "article_share",
     properties = mapOf(
         "article_id" to "12345",
@@ -262,9 +273,9 @@ DMBIAnalytics.trackEvent(
 ## Advanced Configuration
 
 ```kotlin
-val config = DMBIConfiguration.Builder(
+val config = CapraConfiguration.Builder(
     siteId = "your-site-android",
-    endpoint = "https://realtime.dmbi.site/e"
+    endpoint = "https://t.capra.solutions/e"
 )
     .heartbeatInterval(30_000L)        // Base heartbeat: 30 seconds
     .maxHeartbeatInterval(120_000L)    // Max when inactive: 120 seconds
@@ -275,35 +286,35 @@ val config = DMBIConfiguration.Builder(
     .debugLogging(true)                // Enable debug logs
     .build()
 
-DMBIAnalytics.configure(this, config)
+CapraAnalytics.configure(this, config)
 ```
 
 ## Comparison with Competitors
 
-| Feature | Chartbeat | Marfeel | DMBI SDK |
-|---------|-----------|---------|----------|
+| Feature | Chartbeat | Marfeel | Capra SDK |
+|---------|-----------|---------|-----------|
 | Heartbeat | 15s | 10s | 30s (dynamic) |
-| Scroll tracking | ✅ | ✅ | ✅ |
-| Active time | ? | ✅ | ✅ |
-| Dynamic interval | ✅ | ❌ | ✅ |
-| Conversions | ❌ | ✅ | ✅ |
-| User segments | ✅ | ✅ | ✅ |
-| Offline storage | ❌ | ❌ | ✅ |
+| Scroll tracking | Yes | Yes | Yes |
+| Active time | ? | Yes | Yes |
+| Dynamic interval | Yes | No | Yes |
+| Conversions | No | Yes | Yes |
+| User segments | Yes | Yes | Yes |
+| Offline storage | No | No | Yes |
 
 ## Java Support
 
 ```java
 // Java initialization
-DMBIAnalytics.configure(context, "your-site-android", "https://realtime.dmbi.site/e");
+CapraAnalytics.configure(context, "your-site-android", "https://t.capra.solutions/e");
 
 // Java screen tracking
-DMBIAnalytics.trackScreen("Home", "app://home", "Home Screen");
+CapraAnalytics.trackScreen("Home", "app://home", "Home Screen");
 
 // Java user type
-DMBIAnalytics.setUserType(UserType.SUBSCRIBER);
+CapraAnalytics.setUserType(UserType.SUBSCRIBER);
 
 // Java conversion
-DMBIAnalytics.trackConversion("sub_123", "subscription", 99.99, "TRY");
+CapraAnalytics.trackConversion("sub_123", "subscription", 99.99, "TRY");
 ```
 
 ## Requirements
@@ -321,8 +332,8 @@ DMBIAnalytics.trackConversion("sub_123", "subscription", 99.99, "TRY");
 ## ProGuard
 
 ```proguard
--keep class site.dmbi.analytics.** { *; }
--keepclassmembers class site.dmbi.analytics.** { *; }
+-keep class solutions.capra.analytics.** { *; }
+-keepclassmembers class solutions.capra.analytics.** { *; }
 ```
 
 ## License

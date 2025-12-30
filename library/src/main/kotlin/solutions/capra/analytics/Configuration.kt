@@ -1,9 +1,9 @@
-package site.dmbi.analytics
+package solutions.capra.analytics
 
 /**
  * SDK configuration
  */
-data class DMBIConfiguration(
+data class CapraConfiguration(
     /** Site identifier (e.g., "hurriyet-android") */
     val siteId: String,
     /** Analytics endpoint URL */
@@ -56,7 +56,7 @@ data class DMBIConfiguration(
         fun offlineRetentionDays(days: Int) = apply { offlineRetentionDays = days }
         fun autoScrollTracking(enabled: Boolean) = apply { autoScrollTracking = enabled }
 
-        fun build() = DMBIConfiguration(
+        fun build() = CapraConfiguration(
             siteId = siteId,
             endpoint = endpoint,
             heartbeatInterval = heartbeatInterval,

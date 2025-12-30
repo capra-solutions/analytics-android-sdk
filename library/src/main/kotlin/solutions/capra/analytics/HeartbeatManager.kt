@@ -1,4 +1,4 @@
-package site.dmbi.analytics
+package solutions.capra.analytics
 
 import kotlinx.coroutines.*
 

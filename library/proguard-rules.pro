@@ -1,10 +1,10 @@
 # Keep all public classes and methods
--keep public class site.dmbi.analytics.DMBIAnalytics { *; }
--keep public class site.dmbi.analytics.DMBIConfiguration { *; }
--keep public class site.dmbi.analytics.DMBIConfiguration$Builder { *; }
+-keep public class solutions.capra.analytics.CapraAnalytics { *; }
+-keep public class solutions.capra.analytics.CapraConfiguration { *; }
+-keep public class solutions.capra.analytics.CapraConfiguration$Builder { *; }
 
 # Keep models
--keep class site.dmbi.analytics.models.** { *; }
+-keep class solutions.capra.analytics.models.** { *; }
 
 # Keep Kotlin metadata
 -keepattributes *Annotation*

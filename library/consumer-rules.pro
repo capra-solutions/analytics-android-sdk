@@ -1,6 +1,6 @@
 # Consumer ProGuard rules
 # These rules will be applied to consumer apps
 
--keep public class site.dmbi.analytics.DMBIAnalytics { *; }
--keep public class site.dmbi.analytics.DMBIConfiguration { *; }
--keep public class site.dmbi.analytics.DMBIConfiguration$Builder { *; }
+-keep public class solutions.capra.analytics.CapraAnalytics { *; }
+-keep public class solutions.capra.analytics.CapraConfiguration { *; }
+-keep public class solutions.capra.analytics.CapraConfiguration$Builder { *; }

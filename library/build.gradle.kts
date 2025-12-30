@@ -4,10 +4,10 @@ plugins {
     id("maven-publish")
 }
 
-val sdkVersion = "1.0.9"
+val sdkVersion = "2.0.0"
 
 android {
-    namespace = "site.dmbi.analytics"
+    namespace = "solutions.capra.analytics"
     compileSdk = 34
 
     defaultConfig {
@@ -67,7 +67,7 @@ dependencies {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "site.dmbi.analytics"
+            groupId = "solutions.capra.analytics"
             artifactId = "analytics"
             version = sdkVersion
 

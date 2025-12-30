@@ -1,12 +1,12 @@
-package site.dmbi.analytics
+package solutions.capra.analytics
 
 import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
-import site.dmbi.analytics.models.AnalyticsEvent
-import site.dmbi.analytics.models.StoredEvent
+import solutions.capra.analytics.models.AnalyticsEvent
+import solutions.capra.analytics.models.StoredEvent
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -26,7 +26,7 @@ internal class OfflineStore(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     init {
-        val dir = File(context.filesDir, "dmbi_analytics")
+        val dir = File(context.filesDir, "capra_analytics")
         if (!dir.exists()) dir.mkdirs()
         file = File(dir, "events.json")
 
@@ -181,6 +181,6 @@ internal class OfflineStore(
     }
 
     companion object {
-        private const val TAG = "DMBIAnalytics"
+        private const val TAG = "CapraAnalytics"
     }
 }

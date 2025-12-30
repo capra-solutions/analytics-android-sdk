@@ -1,9 +1,9 @@
-package site.dmbi.analytics
+package solutions.capra.analytics
 
 import android.util.Log
 import kotlinx.coroutines.*
 import org.json.JSONArray
-import site.dmbi.analytics.models.AnalyticsEvent
+import solutions.capra.analytics.models.AnalyticsEvent
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
@@ -157,6 +157,6 @@ internal class NetworkQueue(
     }
 
     companion object {
-        private const val TAG = "DMBIAnalytics"
+        private const val TAG = "CapraAnalytics"
     }
 }

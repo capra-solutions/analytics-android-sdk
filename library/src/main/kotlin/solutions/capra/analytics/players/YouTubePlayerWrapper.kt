@@ -1,9 +1,9 @@
-package site.dmbi.analytics.players
+package solutions.capra.analytics.players
 
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
-import site.dmbi.analytics.DMBIAnalytics
+import solutions.capra.analytics.CapraAnalytics
 
 /**
  * Wrapper for YouTube Android Player that automatically tracks video analytics events.
@@ -86,7 +86,7 @@ class YouTubePlayerWrapper(private val player: YouTubePlayer) {
     private fun trackImpression() {
         val id = videoId ?: return
 
-        DMBIAnalytics.trackVideoImpression(
+        CapraAnalytics.trackVideoImpression(
             videoId = id,
             title = videoTitle,
             duration = if (videoDuration > 0) videoDuration else null
@@ -96,7 +96,7 @@ class YouTubePlayerWrapper(private val player: YouTubePlayer) {
     private fun trackPlay() {
         val id = videoId ?: return
 
-        DMBIAnalytics.trackVideoPlay(
+        CapraAnalytics.trackVideoPlay(
             videoId = id,
             title = videoTitle,
             duration = if (videoDuration > 0) videoDuration else null,
@@ -108,7 +108,7 @@ class YouTubePlayerWrapper(private val player: YouTubePlayer) {
         val id = videoId ?: return
         val percent = calculatePercent()
 
-        DMBIAnalytics.trackVideoPause(
+        CapraAnalytics.trackVideoPause(
             videoId = id,
             position = currentPosition,
             percent = percent
@@ -118,7 +118,7 @@ class YouTubePlayerWrapper(private val player: YouTubePlayer) {
     private fun trackComplete() {
         val id = videoId ?: return
 
-        DMBIAnalytics.trackVideoComplete(
+        CapraAnalytics.trackVideoComplete(
             videoId = id,
             duration = if (videoDuration > 0) videoDuration else null
         )
@@ -127,7 +127,7 @@ class YouTubePlayerWrapper(private val player: YouTubePlayer) {
     private fun trackQuartile(percent: Int) {
         val id = videoId ?: return
 
-        DMBIAnalytics.trackVideoProgress(
+        CapraAnalytics.trackVideoProgress(
             videoId = id,
             duration = if (videoDuration > 0) videoDuration else null,
             position = currentPosition,

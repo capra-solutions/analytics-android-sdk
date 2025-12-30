@@ -1,4 +1,4 @@
-package site.dmbi.analytics
+package solutions.capra.analytics
 
 import android.content.Context
 import android.net.Uri
@@ -7,11 +7,11 @@ import android.util.Log
 import android.view.WindowManager
 import org.json.JSONArray
 import org.json.JSONObject
-import site.dmbi.analytics.models.AnalyticsEvent
-import site.dmbi.analytics.models.Conversion
-import site.dmbi.analytics.models.ScreenMetadata
-import site.dmbi.analytics.models.UTMParameters
-import site.dmbi.analytics.models.UserType
+import solutions.capra.analytics.models.AnalyticsEvent
+import solutions.capra.analytics.models.Conversion
+import solutions.capra.analytics.models.ScreenMetadata
+import solutions.capra.analytics.models.UTMParameters
+import solutions.capra.analytics.models.UserType
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,7 +20,7 @@ import java.util.*
  */
 internal class EventTracker(
     private val context: Context,
-    private val config: DMBIConfiguration,
+    private val config: CapraConfiguration,
     private val sessionManager: SessionManager,
     private val networkQueue: NetworkQueue
 ) {
@@ -497,6 +497,6 @@ internal class EventTracker(
     }
 
     companion object {
-        private const val TAG = "DMBIAnalytics"
+        private const val TAG = "CapraAnalytics"
     }
 }

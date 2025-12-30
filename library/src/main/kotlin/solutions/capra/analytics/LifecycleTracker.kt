@@ -1,4 +1,4 @@
-package site.dmbi.analytics
+package solutions.capra.analytics
 
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner

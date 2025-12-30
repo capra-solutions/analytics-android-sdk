@@ -1,4 +1,4 @@
-package site.dmbi.analytics.models
+package solutions.capra.analytics.models
 
 import android.net.Uri
 import org.json.JSONArray

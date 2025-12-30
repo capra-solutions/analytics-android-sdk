@@ -1,8 +1,8 @@
-package site.dmbi.analytics.players
+package solutions.capra.analytics.players
 
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import site.dmbi.analytics.DMBIAnalytics
+import solutions.capra.analytics.CapraAnalytics
 
 /**
  * Wrapper for ExoPlayer that automatically tracks video analytics events.
@@ -104,7 +104,7 @@ class ExoPlayerWrapper(private val player: ExoPlayer) {
         val id = videoId ?: return
         val duration = videoDuration ?: (player.duration / 1000f).takeIf { it > 0 }
 
-        DMBIAnalytics.trackVideoImpression(
+        CapraAnalytics.trackVideoImpression(
             videoId = id,
             title = videoTitle,
             duration = duration
@@ -116,7 +116,7 @@ class ExoPlayerWrapper(private val player: ExoPlayer) {
         val duration = videoDuration ?: (player.duration / 1000f).takeIf { it > 0 }
         val position = player.currentPosition / 1000f
 
-        DMBIAnalytics.trackVideoPlay(
+        CapraAnalytics.trackVideoPlay(
             videoId = id,
             title = videoTitle,
             duration = duration,
@@ -129,7 +129,7 @@ class ExoPlayerWrapper(private val player: ExoPlayer) {
         val position = player.currentPosition / 1000f
         val percent = calculatePercent()
 
-        DMBIAnalytics.trackVideoPause(
+        CapraAnalytics.trackVideoPause(
             videoId = id,
             position = position,
             percent = percent
@@ -140,7 +140,7 @@ class ExoPlayerWrapper(private val player: ExoPlayer) {
         val id = videoId ?: return
         val duration = videoDuration ?: (player.duration / 1000f).takeIf { it > 0 }
 
-        DMBIAnalytics.trackVideoComplete(
+        CapraAnalytics.trackVideoComplete(
             videoId = id,
             duration = duration
         )
@@ -151,7 +151,7 @@ class ExoPlayerWrapper(private val player: ExoPlayer) {
         val duration = videoDuration ?: (player.duration / 1000f).takeIf { it > 0 }
         val position = player.currentPosition / 1000f
 
-        DMBIAnalytics.trackVideoProgress(
+        CapraAnalytics.trackVideoProgress(
             videoId = id,
             duration = duration,
             position = position,

@@ -1,4 +1,4 @@
-package site.dmbi.analytics
+package solutions.capra.analytics
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -96,12 +96,12 @@ internal class SessionManager(
         get() {
             val osVersion = Build.VERSION.RELEASE
             val deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}"
-            return "DMBIAnalytics/${BuildConfig.SDK_VERSION} Android/$osVersion ($deviceModel)"
+            return "CapraAnalytics/${BuildConfig.SDK_VERSION} Android/$osVersion ($deviceModel)"
         }
 
     companion object {
-        private const val PREFS_NAME = "dmbi_analytics"
-        private const val ENCRYPTED_PREFS_NAME = "dmbi_analytics_secure"
+        private const val PREFS_NAME = "capra_analytics"
+        private const val ENCRYPTED_PREFS_NAME = "capra_analytics_secure"
         private const val SESSION_ID_KEY = "session_id"
         private const val USER_ID_KEY = "user_id"
         private const val LAST_ACTIVE_KEY = "last_active"
