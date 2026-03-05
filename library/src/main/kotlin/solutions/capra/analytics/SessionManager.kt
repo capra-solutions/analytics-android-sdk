@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Build
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import java.io.File
 import java.util.*
 
 /**
@@ -41,21 +43,50 @@ internal class SessionManager(
 
     init {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        encryptedPrefs = createEncryptedPrefs(context)
 
+        _sessionId = prefs.getString(SESSION_ID_KEY, null)
+        lastActiveTime = prefs.getLong(LAST_ACTIVE_KEY, 0L)
+    }
+
+    private fun createEncryptedPrefs(context: Context): SharedPreferences {
+        return try {
+            buildEncryptedPrefs(context)
+        } catch (e: Exception) {
+            Log.w(TAG, "EncryptedSharedPreferences corrupted, clearing and recreating", e)
+            clearEncryptedPrefs(context)
+            try {
+                buildEncryptedPrefs(context)
+            } catch (e2: Exception) {
+                Log.w(TAG, "EncryptedSharedPreferences still failing, falling back to regular prefs", e2)
+                context.getSharedPreferences(ENCRYPTED_PREFS_NAME + "_fallback", Context.MODE_PRIVATE)
+            }
+        }
+    }
+
+    private fun buildEncryptedPrefs(context: Context): SharedPreferences {
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
 
-        encryptedPrefs = EncryptedSharedPreferences.create(
+        return EncryptedSharedPreferences.create(
             context,
             ENCRYPTED_PREFS_NAME,
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
+    }
 
-        _sessionId = prefs.getString(SESSION_ID_KEY, null)
-        lastActiveTime = prefs.getLong(LAST_ACTIVE_KEY, 0L)
+    private fun clearEncryptedPrefs(context: Context) {
+        try {
+            val prefsFile = File(context.filesDir.parent + "/shared_prefs/" + ENCRYPTED_PREFS_NAME + ".xml")
+            if (prefsFile.exists()) {
+                prefsFile.delete()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to delete corrupted prefs file", e)
+        }
     }
 
     /** Update last active time (called on each event) */
@@ -100,6 +131,7 @@ internal class SessionManager(
         }
 
     companion object {
+        private const val TAG = "CapraAnalytics"
         private const val PREFS_NAME = "capra_analytics"
         private const val ENCRYPTED_PREFS_NAME = "capra_analytics_secure"
         private const val SESSION_ID_KEY = "session_id"
