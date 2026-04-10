@@ -41,7 +41,7 @@ If upgrading from version 1.x:
 1. Update import: `import site.dmbi.analytics.*` -> `import solutions.capra.analytics.*`
 2. Rename class: `DMBIAnalytics` -> `CapraAnalytics`
 3. Rename config: `DMBIConfiguration` -> `CapraConfiguration`
-4. Update endpoint: `https://realtime.dmbi.site/e` -> `https://t.capra.solutions/e`
+4. Update endpoint: `https://realtime.dmbi.site/e` veya `https://t.capra.solutions/e` -> `https://analytics-ingestion.demirorenmedya.com/e`
 
 Note: Storage keys have changed, so user sessions will be reset after upgrade.
 
@@ -59,7 +59,7 @@ class MyApplication : Application() {
         CapraAnalytics.configure(
             context = this,
             siteId = "your-site-android",
-            endpoint = "https://t.capra.solutions/e"
+            endpoint = "https://analytics-ingestion.demirorenmedya.com/e"
         )
     }
 }
@@ -277,7 +277,7 @@ CapraAnalytics.trackEvent(
 ```kotlin
 val config = CapraConfiguration.Builder(
     siteId = "your-site-android",
-    endpoint = "https://t.capra.solutions/e"
+    endpoint = "https://analytics-ingestion.demirorenmedya.com/e"
 )
     .heartbeatInterval(30_000L)        // Base heartbeat: 30 seconds
     .maxHeartbeatInterval(120_000L)    // Max when inactive: 120 seconds
@@ -307,7 +307,7 @@ CapraAnalytics.configure(this, config)
 
 ```java
 // Java initialization
-CapraAnalytics.configure(context, "your-site-android", "https://t.capra.solutions/e");
+CapraAnalytics.configure(context, "your-site-android", "https://analytics-ingestion.demirorenmedya.com/e");
 
 // Java screen tracking
 CapraAnalytics.trackScreen("Home", "app://home", "Home Screen");

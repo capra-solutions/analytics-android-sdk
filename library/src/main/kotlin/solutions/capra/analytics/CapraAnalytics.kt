@@ -44,7 +44,7 @@ object CapraAnalytics {
      * Configure the SDK with site ID and endpoint
      * @param context Application context
      * @param siteId Your site identifier (e.g., "hurriyet-android")
-     * @param endpoint Analytics endpoint URL (e.g., "https://t.capra.solutions/e")
+     * @param endpoint Analytics endpoint URL (e.g., "https://analytics-ingestion.demirorenmedya.com/e")
      */
     @JvmStatic
     fun configure(context: Context, siteId: String, endpoint: String) {
